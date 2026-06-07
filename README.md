@@ -32,60 +32,58 @@ test/
 
 `skills/prun/SKILL.md` is currently a placeholder.
 
-## Install Skills
+## Install The PMem Skill
 
 Use the installer script for repeatable local installation. It installs skill files only; it does not edit Codex config, Claude Code config, `CLAUDE.md`, or hook configuration.
 
-### Codex User Skill
-
-Install the PMem skill into your Codex skills directory:
+Codex:
 
 ```sh
 scripts/install-skill.sh --agent codex
 ```
 
-Verify:
+Claude Code user skill:
+
+```sh
+scripts/install-skill.sh --agent claude
+```
+
+Claude Code project skill:
+
+```sh
+scripts/install-skill.sh --agent claude --scope project
+```
+
+Preview the destination without writing:
+
+```sh
+scripts/install-skill.sh --agent codex --dry-run
+```
+
+Restart the target agent after installing or updating skills so the skill metadata is reloaded.
+
+See [scripts/install-skill.md](scripts/install-skill.md) for options, behavior, safety constraints, and test coverage.
+
+### Verify Install
+
+Codex:
 
 ```sh
 codex_home=${CODEX_HOME:-"$HOME/.codex"}
 test -f "$codex_home/skills/pmem/SKILL.md"
 ```
 
-Restart Codex after installing or updating skills so the skill metadata is reloaded.
-
-### Claude Code User Skill
-
-Install the PMem skill into your Claude Code user skills directory:
-
-```sh
-scripts/install-skill.sh --agent claude
-```
-
-Verify:
+Claude Code user skill:
 
 ```sh
 test -f "$HOME/.claude/skills/pmem/SKILL.md"
 ```
 
-Restart Claude Code after installing or updating skills so the skill metadata is reloaded.
-
-### Claude Code Project Skill
-
-Install the PMem skill for the current repository:
-
-```sh
-scripts/install-skill.sh --agent claude --scope project
-```
-
-Verify:
+Claude Code project skill:
 
 ```sh
 test -f ".claude/skills/pmem/SKILL.md"
 ```
-
-Restart Claude Code after installing or updating skills so the skill metadata is reloaded.
-
-Use `scripts/install-skill.sh --dry-run` to preview the destination before writing. See [scripts/install-skill.md](scripts/install-skill.md) for options, behavior, safety constraints, and test coverage.
 
 ### Manual Fallback
 
