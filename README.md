@@ -18,6 +18,9 @@ The repo is currently focused on Codex and Claude Code. Other agent compatibilit
 ## Repository Layout
 
 ```text
+scripts/
+  install-skill.sh
+  install-skill.md
 skills/
   pmem/
     SKILL.md
@@ -31,14 +34,14 @@ test/
 
 ## Install Skills
 
-### Codex
+Use the installer script for repeatable local installation. It installs skill files only; it does not edit Codex config, Claude Code config, `CLAUDE.md`, or hook configuration.
+
+### Codex User Skill
 
 Install the PMem skill into your Codex skills directory:
 
 ```sh
-codex_home=${CODEX_HOME:-"$HOME/.codex"}
-mkdir -p "$codex_home/skills/pmem"
-cp -R skills/pmem/. "$codex_home/skills/pmem/"
+scripts/install-skill.sh --agent codex
 ```
 
 Verify:
@@ -50,31 +53,51 @@ test -f "$codex_home/skills/pmem/SKILL.md"
 
 Restart Codex after installing or updating skills so the skill metadata is reloaded.
 
-### Claude Code
+### Claude Code User Skill
 
-Install as either a user skill or project skill.
-
-User skill:
+Install the PMem skill into your Claude Code user skills directory:
 
 ```sh
-mkdir -p "$HOME/.claude/skills/pmem"
-cp -R skills/pmem/. "$HOME/.claude/skills/pmem/"
-```
-
-Project skill:
-
-```sh
-mkdir -p .claude/skills/pmem
-cp -R skills/pmem/. .claude/skills/pmem/
+scripts/install-skill.sh --agent claude
 ```
 
 Verify:
 
 ```sh
-test -f "$HOME/.claude/skills/pmem/SKILL.md" || test -f ".claude/skills/pmem/SKILL.md"
+test -f "$HOME/.claude/skills/pmem/SKILL.md"
 ```
 
 Restart Claude Code after installing or updating skills so the skill metadata is reloaded.
+
+### Claude Code Project Skill
+
+Install the PMem skill for the current repository:
+
+```sh
+scripts/install-skill.sh --agent claude --scope project
+```
+
+Verify:
+
+```sh
+test -f ".claude/skills/pmem/SKILL.md"
+```
+
+Restart Claude Code after installing or updating skills so the skill metadata is reloaded.
+
+Use `scripts/install-skill.sh --dry-run` to preview the destination before writing. See [scripts/install-skill.md](scripts/install-skill.md) for options, behavior, safety constraints, and test coverage.
+
+### Manual Fallback
+
+Manual copy still works when you need to inspect or customize the install:
+
+```sh
+dest="$HOME/.codex/skills/pmem"
+mkdir -p "$dest"
+cp -R skills/pmem/. "$dest/"
+```
+
+For Claude Code, use `$HOME/.claude/skills/pmem` or `.claude/skills/pmem` as the destination.
 
 ## Verify PMem CLI
 
@@ -90,13 +113,11 @@ Use `pmem -h`, `pmem <group> -h`, and `pmem <group> <command> -h` for current CL
 
 ## Tests
 
-Shell script tests should use ShellSpec and live under `test/` with paths mirroring the script path from the repository root.
+Shell script tests use ShellSpec and live under `test/` with paths mirroring the script path from the repository root.
 
 ```sh
 shellspec
 ```
-
-There are no substantive script tests yet because the current published skill is documentation-only.
 
 ## License
 
