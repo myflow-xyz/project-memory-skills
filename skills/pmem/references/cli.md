@@ -10,6 +10,17 @@ The current CLI can change faster than this skill. Prefer live help for exact fl
 - `pmem doc list`
 - `pmem doc show <doc-id-or-slug>`
 
+## Built-In Docs
+
+PMem includes built-in docs that clarify product concepts, entity semantics, workflows, and templates. Use `pmem doc list` to discover current docs and `pmem doc show <doc-id-or-slug>` to load one focused doc.
+
+Main doc kinds:
+
+- `guide`: product or entity overview and intended usage
+- `term`: canonical vocabulary and entity semantics
+- `workflow`: procedural guidance for PMem operations
+- `template`: content scaffolds for KBs, WIs, and related records
+
 ## Common Reads
 
 Use default PMem output for agent-facing reads. Add `--json` only when deterministic parsing or a helper script needs structured output.
