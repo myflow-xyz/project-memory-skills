@@ -59,6 +59,7 @@ Before writing:
 5. Before using `pmem sync upload`, run `pmem sync status` and inspect the matching `<id>.content.tmp.md` and `<id>.metadata.tmp.json` draft pair. Prefer `pmem sync upload --id <entity-id>` over `--all` unless every pending draft is explicitly in scope.
 6. Use live help or focused built-in docs/templates when command flags, entity semantics, or content shape are uncertain:
    `pmem <group> <command> -h`, `pmem doc list`, `pmem doc show <doc-id-or-slug>`
+   For new KB/WI content, use templates as shape guidance only; adapt them to the actual entity, omit irrelevant sections, and do not copy placeholder or example content.
 
 After writing, verify the persisted result with a focused read, link list, history, or sync status as appropriate. Report only the entity IDs changed, the meaningful fields or lifecycle transitions, verification performed, and any skipped checks or uncertainty.
 
