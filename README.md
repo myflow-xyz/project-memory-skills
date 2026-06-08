@@ -7,7 +7,7 @@ The repo is currently focused on Codex and Claude Code. Other agent compatibilit
 ## Features
 
 - `pmem` skill: teaches an agent when and how to load PMem knowledge blocks and explicit work items as project context.
-- PMem-oriented conventions: concise default output, live CLI help, read-only local mirror fallback, and explicit writeback instead of silent memory mutation.
+- PMem-oriented conventions: concise default output, live CLI help, read-only local mirror fallback, and explicit write/update workflows instead of silent memory mutation.
 
 ## Requirements
 
