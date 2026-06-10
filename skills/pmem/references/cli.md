@@ -29,12 +29,18 @@ Most common context reads:
 
 - `pmem kb list`
 - `pmem kb get --id <kb-id>`
+- `pmem kb exists --id <kb-id>`
+- `pmem kb status --id <kb-id>`
 - `pmem wi get --id <wi-id>`
+- `pmem wi exists --id <wi-id>`
+- `pmem wi status --id <wi-id>`
 - `pmem link list --id <entity-id>`
 - `pmem sync status`
 - `pmem doc show doc_workflow_repo_local_mirror_sync`
 
 Use narrower list filters when known. For filters, check command help instead of guessing flags, especially `pmem kb list -h` and `pmem wi list -h`.
+
+Use `exists` when an explicit entity ID is already known and the only question is whether it resolves in the current project context. Use `status` when the only needed field is the current KB or WI status. Use `get` instead when content, metadata beyond status, links, history, or writeback safety could affect the next action.
 
 For structured entity reads, use `--fields` when supported to keep JSON small:
 

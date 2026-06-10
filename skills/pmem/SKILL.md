@@ -35,6 +35,8 @@ Prefer summary-first retrieval. Full-load only the PMem records that can affect 
    `pmem wi get --id <wi-id>`
 6. If no WI ID is provided, do not list active WIs unless the user asks what is active, next, blocked, or planned.
 
+When an explicit entity ID is already known and the task only needs existence or lifecycle state, prefer the lightweight checks before fuller reads: `pmem kb exists --id <kb-id>`, `pmem kb status --id <kb-id>`, `pmem wi exists --id <wi-id>`, or `pmem wi status --id <wi-id>`. Do not use status-only checks as a substitute when metadata, content, links, or update safety could affect the decision.
+
 If PMem reads fail but a sync-home mirror exists, switch to read-only local mode only for context discovery. Search metadata in `*.metadata.json`, read body text from `*.content.md`, and skip `*.sync.json`. Treat local results as possibly stale until PMem connectivity returns.
 
 If mirror search is useful and available, use it only as a discovery aid. Verify important results with `pmem kb get`, `pmem wi get`, current mirror status, or fresh connectivity before relying on them.
@@ -65,7 +67,7 @@ Before writing:
    `pmem <group> <command> -h`, `pmem doc list`, `pmem doc show <doc-id-or-slug>`
    For new KB/WI content, use templates as shape guidance only; adapt them to the actual entity, omit irrelevant sections, and do not copy placeholder or example content.
 
-After writing, verify the persisted result with a focused read, link list, history, or sync status as appropriate. Report only the entity IDs changed, the meaningful fields or lifecycle transitions, verification performed, and any skipped checks or uncertainty.
+After writing, verify the persisted result with a focused read, existence/status check, link list, history, or sync status as appropriate. Report only the entity IDs changed, the meaningful fields or lifecycle transitions, verification performed, and any skipped checks or uncertainty.
 
 ## Context Pack
 
