@@ -96,6 +96,8 @@ pmem kb update --id <kb-id> --content-file <path>
 
 Supplying `--content` or `--content-file` replaces the whole KB content field. It does not append to, patch, or merge Markdown.
 
+Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern.
+
 Work item creation:
 
 ```sh
@@ -117,6 +119,8 @@ pmem wi update --id <wi-id> --content-file <path>
 ```
 
 Supplying `--content` or `--content-file` replaces the whole WI content field. It does not append to, patch, or merge Markdown.
+
+Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern.
 
 Prefer lifecycle commands over raw status updates when changing only execution state:
 

@@ -49,7 +49,7 @@ Explicit user intent is enough when the target entity and requested mutation are
 
 When creating WIs, shape `task`, `bug`, `doc`, `test`, and `review` as pickup-ready execution units: one goal, included/excluded scope, relevant context, acceptance criteria, verification, and handoff/blockers. Use `spike` for unclear investigation; use `story`, `milestone`, and `epic` as planning hubs unless explicitly scoped smaller.
 
-When creating or editing KB/WI content, omit a duplicate first-line `# Title` heading because title is metadata, and do not hard-wrap lines because PMem content has no line-length limit.
+When creating or editing KB/WI content, omit a duplicate first-line `# Title` heading because title is metadata, and do not hard-wrap lines because PMem content has no line-length limit. Use `--content-file` for Markdown content writes so approval prompts and command logs stay compact.
 
 Before writing:
 
@@ -61,7 +61,7 @@ Before writing:
    - Sync draft: pending mirror draft upload for an existing KB or WI.
 3. Read the current entity first for updates:
    `pmem kb get --id <kb-id>` or `pmem wi get --id <wi-id>`
-4. For content updates, treat `--content` and `--content-file` as full replacement, not append or merge. Load current content, produce the intended complete replacement, and prefer `--content-file` for non-trivial Markdown.
+4. For content updates, treat `--content-file` as full replacement, not append or merge. Load current content, produce the intended complete replacement, write it to a temporary Markdown file, and update with `--content-file`.
 5. Before using `pmem sync upload`, run `pmem sync status` and inspect the matching `<id>.content.tmp.md` and `<id>.metadata.tmp.json` draft pair. Prefer `pmem sync upload --id <entity-id>` over `--all` unless every pending draft is explicitly in scope.
 6. Use live help or focused built-in docs/templates when command flags, entity semantics, or content shape are uncertain:
    `pmem <group> <command> -h`, `pmem doc list`, `pmem doc show <doc-id-or-slug>`
