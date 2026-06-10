@@ -47,6 +47,8 @@ Explicit user intent is enough when the target entity and requested mutation are
 
 When creating WIs, shape `task`, `bug`, `doc`, `test`, and `review` as pickup-ready execution units: one goal, included/excluded scope, relevant context, acceptance criteria, verification, and handoff/blockers. Use `spike` for unclear investigation; use `story`, `milestone`, and `epic` as planning hubs unless explicitly scoped smaller.
 
+When creating or editing KB/WI content, omit a duplicate first-line `# Title` heading because title is metadata, and do not hard-wrap lines because PMem content has no line-length limit.
+
 Before writing:
 
 1. Verify PMem is available and bound to the intended project. Do not write in local mirror fallback mode.
