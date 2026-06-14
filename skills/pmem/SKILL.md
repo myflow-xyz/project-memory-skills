@@ -49,7 +49,11 @@ Explicit user intent is enough when the target entity and requested mutation are
 
 When creating WIs, shape `task`, `bug`, `doc`, `test`, and `review` as pickup-ready execution units: one goal, included/excluded scope, relevant context, acceptance criteria, verification, and handoff/blockers. Use `spike` for unclear investigation; use `story`, `milestone`, and `epic` as planning hubs unless explicitly scoped smaller.
 
-When creating or editing KB/WI content, omit a duplicate first-line `# Title` heading because title is metadata, and do not hard-wrap lines because PMem content has no line-length limit. Use `--content-file` for Markdown content writes so approval prompts and command logs stay compact.
+When creating or editing KB/WI content, omit a duplicate first-line `# Title` heading because title is metadata, and do not hard-wrap lines because PMem content has no line-length limit. Still respect any entity, document-type, or target-surface size limit that applies to the content. Maximize correctness, accuracy, and useful information density; remove padding before removing required context, constraints, evidence, or verification.
+
+Normalize runtime user-identifying local data before durable PMem writes. Replace usernames, home directories, device names, cloud-sync paths, absolute machine-local repo paths, temporary paths, and runtime-only local IDs with stable placeholders such as `<user-home>`, `<repo-root>`, `<agent-home>`, `<sync-home>`, `<tmp-dir>`, `<project-key>`, and `<entity-id>`. Preserve operational meaning, but do not store secrets, tokens, local prun details, raw identifying logs, or facts that belong only in source files.
+
+Use `--content-file` for Markdown content writes so approval prompts and command logs stay compact.
 
 Before writing:
 

@@ -61,6 +61,19 @@ Historical versions are read-only and useful for audit or recovery context:
 
 Writebacks are explicit workflows. Do not run them as part of routine context loading.
 
+Durable content should be correct, accurate, and dense. Before writing with
+`--content-file`, check whether the target entity, document type, template, or
+surface has a size limit; keep required context, constraints, evidence, and
+verification ahead of narrative padding.
+
+Normalize runtime user-identifying local data before it enters KB, WI, sync
+draft, ticket, or review-note content. Replace usernames, home directories,
+device names, cloud-sync paths, absolute machine-local repo paths, temporary
+paths, and runtime-only local IDs with stable placeholders such as
+`<user-home>`, `<repo-root>`, `<agent-home>`, `<sync-home>`, `<tmp-dir>`,
+`<project-key>`, and `<entity-id>`. Do not store secrets, tokens, raw
+identifying logs, or facts that belong only in source files.
+
 Use live help before uncommon mutations:
 
 - `pmem kb create -h`
