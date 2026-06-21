@@ -97,19 +97,20 @@ pmem kb create \
   --anchor-id <anchor-id> \
   --title <title> \
   --summary <summary> \
-  --content-file <path>
+  --content-file <path> \
+  -l "<change message>"
 ```
 
 Knowledge block updates patch supplied metadata fields and leave omitted fields unchanged:
 
 ```sh
 pmem kb update --id <kb-id> --summary <summary>
-pmem kb update --id <kb-id> --content-file <path>
+pmem kb update --id <kb-id> --content-file <path> -l "<change message>"
 ```
 
 Supplying `--content` or `--content-file` replaces the whole KB content field. It does not append to, patch, or merge Markdown.
 
-Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern.
+Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern. Include `-l "<change message>"` / `--changelog` for content-bearing creates and updates; for content updates, treat the changelog as required audit context.
 
 Work item creation:
 
@@ -120,7 +121,8 @@ pmem wi create \
   --priority <priority> \
   --title <title> \
   --summary <summary> \
-  --content-file <path>
+  --content-file <path> \
+  -l "<change message>"
 ```
 
 Work item updates patch supplied metadata fields and leave omitted fields unchanged:
@@ -128,12 +130,12 @@ Work item updates patch supplied metadata fields and leave omitted fields unchan
 ```sh
 pmem wi update --id <wi-id> --summary <summary>
 pmem wi update --id <wi-id> --blocked-reason <reason>
-pmem wi update --id <wi-id> --content-file <path>
+pmem wi update --id <wi-id> --content-file <path> -l "<change message>"
 ```
 
 Supplying `--content` or `--content-file` replaces the whole WI content field. It does not append to, patch, or merge Markdown.
 
-Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern.
+Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern. Include `-l "<change message>"` / `--changelog` for content-bearing creates and updates; for content updates, treat the changelog as required audit context.
 
 Prefer lifecycle commands over raw status updates when changing only execution state:
 
@@ -155,22 +157,18 @@ Other typed link add commands include `blocked-by`, `constrains`, `implements`, 
 
 When changing tags, links, authority, status, parentage, priority, or blockers, verify the resulting entity state after the command. Use `--clear-tags` only when deleting all tags is intended.
 
-Mirror draft upload is also a writeback path for existing KB and WI records:
+Sync upload is also a writeback path, but only for pending SQLite-backed drafts created by explicit PMem CLI/API input, such as existing KB/WI updates or offline WI creates:
 
 ```sh
 pmem sync status
-pmem sync upload --id <entity-id>
+pmem sync upload --id <entity-id-or-draft-id>
 pmem sync upload --all
-pmem sync upload --id <entity-id> --force
-pmem sync discard --id <entity-id>
+pmem sync upload --id <entity-id-or-draft-id> --force
+pmem sync discard --id <entity-id-or-draft-id>
+pmem sync discard --id <entity-id-or-draft-id> -n 1
 ```
 
-Use mirror upload only after reviewing the pending draft pair for the target entity:
-
-- `<id>.content.tmp.md`
-- `<id>.metadata.tmp.json`
-
-Prefer `pmem sync upload --id <entity-id>` for agent-driven work. Use `--all` only when `pmem sync status` and draft review show every pending draft is intentionally in scope, including drafts that may be auto-uploaded by hooks. Use `--force` only after manually reconciling a conflicted draft. Use `pmem sync discard --id <entity-id>` when a pending draft should be removed instead of uploaded.
+Use sync upload only after `pmem sync status` shows the selected pending draft or draft chain is in scope and not conflicted or rejected. Review generated projection content when useful, but do not edit generated mirror files as upload input. Prefer `pmem sync upload --id <entity-id-or-draft-id>` for agent-driven work. Use `--all` only when every pending SQLite draft is intentionally in scope, including drafts that may be auto-uploaded by hooks. Use `--force` only after manually reconciling a conflicted draft. Use `pmem sync discard --id <entity-id-or-draft-id>` when a pending draft should be removed instead of uploaded.
 
 ## Command Principles
 
@@ -179,25 +177,28 @@ Prefer `pmem sync upload --id <entity-id>` for agent-driven work. Use `--all` on
 - Use `--verbose` only for explicit debugging.
 - Use `--quiet` only when warnings are intentionally unwanted.
 - Prefer `--content-file` over inline Markdown for non-trivial writeback.
+- Include `-l "<change message>"` / `--changelog` with content-bearing creates and updates; require it for content updates.
 - Treat create, update, upload, discard, lifecycle, and link mutation commands as explicit writeback workflows, not default context-loading behavior.
 - Use `--yes` only when an authority-changing operation is intentional and already confirmed by user intent or workflow requirements.
 
 ## Mirror And Sync
 
-The database/local engine is the source of truth. Mirror files are generated local projections for search, reading, and draft editing.
+The server database is the source of truth for accepted PMem entities. Local SQLite owns the mirror cache, projection health, and pending outbox drafts. Mirror files are generated local projections for search, reading, and review; direct file edits are projection drift, not durable PMem input.
 
 Use `pmem sync status` before relying on mirror freshness or uploading drafts. Use `pmem sync refresh` only when the workflow intentionally refreshes the mirror.
 
 Mirror file roles:
 
-- `<id>.content.md` and `<id>.metadata.json`: generated canonical cache files. Read/search them; do not edit them as the source of truth.
-- `<id>.content.tmp.md` and `<id>.metadata.tmp.json`: pending draft pair for upload to an existing KB or WI.
-- `<id>.sync.json`: local/server comparison state. Use sync commands instead of editing it.
+- `<id>.content.md` and `<id>.metadata.json`: generated projections from SQLite/server state. Read/search/review them; do not edit them as the source of truth.
+- `<id>.sync.json`: local/server comparison state when present. Use sync commands instead of editing it.
 - product-doc mirrors: read-only.
+- old `*.content.tmp.md` and `*.metadata.tmp.json` draft-pair files: not the current upload contract. Do not create or edit them for PMem writeback.
 
-Mirror upload applies pending `*.content.tmp.md` and `*.metadata.tmp.json` drafts for existing KB and work-item entries. It does not create entities and should not be treated as a general write mechanism. Lifecycle, authority, type, subtype, anchor, parent, priority, blocked reason, links, attribution, users, actors, project membership, and audit history require explicit PMem CLI/API operations.
+`pmem sync upload` replays selected SQLite outbox rows for existing KB/WI updates and offline WI creates. It does not import edited projection files, create KBs, or act as a general write mechanism. Lifecycle, authority, type, subtype, anchor, parent, priority, blocked reason, links, attribution, users, actors, project membership, and audit history require explicit PMem CLI/API operations.
 
-Pre-push auto-upload hooks may run `pmem sync upload --all`. Check `pmem sync status` before pushing when pending mirror drafts exist, because new or edited `.tmp` draft files can become durable PMem updates through that hook path.
+`pmem sync refresh` is pull-only and does not upload local file contents. `pmem sync status` is observe-only. `pmem sync discard --id <entity-id-or-draft-id>` deletes selected pending outbox drafts or restores dirty projection-only edits from SQLite; multi-draft chains require a bounded `-n N` or global `--all --yes`.
+
+Pre-push auto-upload hooks may run `pmem sync upload --all`. Check `pmem sync status` before pushing when pending SQLite drafts exist, because those drafts can become durable PMem updates through that hook path.
 
 ## Local Read-Only Fallback
 
