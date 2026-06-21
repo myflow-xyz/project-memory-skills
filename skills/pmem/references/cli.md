@@ -85,6 +85,8 @@ Use live help before uncommon mutations:
 - `pmem link <type> -h`
 - `pmem link update -h`
 
+Examples in this reference use shortcut flags when available. For content change messages, `--changelog` is the long alias for `-l`.
+
 Knowledge block creation:
 
 ```sh
@@ -110,7 +112,7 @@ pmem kb update --id <kb-id> --content-file <path> -l "<change message>"
 
 Supplying `--content` or `--content-file` replaces the whole KB content field. It does not append to, patch, or merge Markdown.
 
-Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern. Include `-l "<change message>"` / `--changelog` for content-bearing creates and updates; for content updates, treat the changelog as required audit context.
+Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern. Include `-l "<change message>"` for content-bearing creates and updates; for content updates, treat the change message as required audit context.
 
 Work item creation:
 
@@ -135,7 +137,7 @@ pmem wi update --id <wi-id> --content-file <path> -l "<change message>"
 
 Supplying `--content` or `--content-file` replaces the whole WI content field. It does not append to, patch, or merge Markdown.
 
-Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern. Include `-l "<change message>"` / `--changelog` for content-bearing creates and updates; for content updates, treat the changelog as required audit context.
+Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern. Include `-l "<change message>"` for content-bearing creates and updates; for content updates, treat the change message as required audit context.
 
 Prefer lifecycle commands over raw status updates when changing only execution state:
 
@@ -177,7 +179,7 @@ Use sync upload only after `pmem sync status` shows the selected pending draft o
 - Use `--verbose` only for explicit debugging.
 - Use `--quiet` only when warnings are intentionally unwanted.
 - Prefer `--content-file` over inline Markdown for non-trivial writeback.
-- Include `-l "<change message>"` / `--changelog` with content-bearing creates and updates; require it for content updates.
+- Include `-l "<change message>"` with content-bearing creates and updates; require it for content updates.
 - Treat create, update, upload, discard, lifecycle, and link mutation commands as explicit writeback workflows, not default context-loading behavior.
 - Use `--yes` only when an authority-changing operation is intentional and already confirmed by user intent or workflow requirements.
 

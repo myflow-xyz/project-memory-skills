@@ -53,7 +53,7 @@ When creating or editing KB/WI content, omit a duplicate first-line `# Title` he
 
 Normalize runtime user-identifying local data before durable PMem writes. Replace usernames, home directories, device names, cloud-sync paths, absolute machine-local repo paths, temporary paths, and runtime-only local IDs with stable placeholders such as `<user-home>`, `<repo-root>`, `<agent-home>`, `<sync-home>`, `<tmp-dir>`, `<project-key>`, and `<entity-id>`. Preserve operational meaning, but do not store secrets, tokens, local prun details, raw identifying logs, or facts that belong only in source files.
 
-Use `--content-file` for Markdown content writes so approval prompts and command logs stay compact. Include a concise `-l "<change message>"` / `--changelog` message for content-bearing creates and updates; for content updates, treat the changelog as required audit context.
+Use `--content-file` for Markdown content writes so approval prompts and command logs stay compact. Include a concise `-l "<change message>"` for content-bearing creates and updates; for content updates, treat the change message as required audit context.
 
 Before writing:
 
