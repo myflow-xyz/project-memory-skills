@@ -28,13 +28,13 @@ Use default PMem output for agent-facing reads. Add `--json` only when determini
 Most common context reads:
 
 - `pmem kb list`
-- `pmem kb get --id <kb-id>`
-- `pmem kb exists --id <kb-id>`
-- `pmem kb status --id <kb-id>`
-- `pmem wi get --id <wi-id>`
-- `pmem wi exists --id <wi-id>`
-- `pmem wi status --id <wi-id>`
-- `pmem link list --id <entity-id>`
+- `pmem kb get -I <kb-id>`
+- `pmem kb exists -I <kb-id>`
+- `pmem kb status -I <kb-id>`
+- `pmem wi get -I <wi-id>`
+- `pmem wi exists -I <wi-id>`
+- `pmem wi status -I <wi-id>`
+- `pmem link list -I <entity-id>`
 - `pmem sync status`
 - `pmem doc show doc_workflow_repo_local_mirror_sync`
 
@@ -44,18 +44,18 @@ Use `exists` when an explicit entity ID is already known and the only question i
 
 For structured entity reads, use `--fields` when supported to keep JSON small:
 
-- `pmem kb get --id <kb-id> --json --fields status,title,summary`
-- `pmem wi get --id <wi-id> --json --fields status,title,summary`
+- `pmem kb get -I <kb-id> --json --fields status,title,summary`
+- `pmem wi get -I <wi-id> --json --fields status,title,summary`
 
 For content replacement workflows, read the current Markdown first:
 
-- `pmem kb get --id <kb-id> --content-only`
-- `pmem wi get --id <wi-id> --content-only`
+- `pmem kb get -I <kb-id> --content-only`
+- `pmem wi get -I <wi-id> --content-only`
 
 Historical versions are read-only and useful for audit or recovery context:
 
-- `pmem kb history --id <kb-id>`
-- `pmem wi history --id <wi-id>`
+- `pmem kb history -I <kb-id>`
+- `pmem wi history -I <wi-id>`
 
 ## Common Writebacks
 
@@ -85,29 +85,30 @@ Use live help before uncommon mutations:
 - `pmem link <type> -h`
 - `pmem link update -h`
 
-Examples in this reference use shortcut flags when available. For content change messages, `--changelog` is the long alias for `-l`.
+Examples in this reference use shortcut flags when available. Use long flags when no shortcut exists. For content change messages, `--changelog` is the long alias for `-l`.
 
 Knowledge block creation:
 
 ```sh
 pmem kb create \
-  --type <rfc|note> \
-  --subtype <subtype> \
+  -t <principle|standard|constraint|adr|design_contract|plan|spec|record> \
   --authority <canonical|supporting|historical> \
-  --status <status> \
+  -s <status> \
   --anchor-type <project|work_item|module|path|external> \
   --anchor-id <anchor-id> \
-  --title <title> \
-  --summary <summary> \
+  -T <title> \
+  -S <summary> \
   --content-file <path> \
   -l "<change message>"
 ```
 
+KB `type` is the semantic document shape. The current KB CLI does not have a `subtype` field.
+
 Knowledge block updates patch supplied metadata fields and leave omitted fields unchanged:
 
 ```sh
-pmem kb update --id <kb-id> --summary <summary>
-pmem kb update --id <kb-id> --content-file <path> -l "<change message>"
+pmem kb update -I <kb-id> -S <summary>
+pmem kb update -I <kb-id> --content-file <path> -l "<change message>"
 ```
 
 Supplying `--content` or `--content-file` replaces the whole KB content field. It does not append to, patch, or merge Markdown.
@@ -118,11 +119,11 @@ Work item creation:
 
 ```sh
 pmem wi create \
-  --type <task|bug|spike|test|review|doc|story|milestone|epic> \
-  --status <status> \
+  -t <task|bug|spike|test|review|doc|story|milestone|epic> \
+  -s <status> \
   --priority <priority> \
-  --title <title> \
-  --summary <summary> \
+  -T <title> \
+  -S <summary> \
   --content-file <path> \
   -l "<change message>"
 ```
@@ -130,9 +131,9 @@ pmem wi create \
 Work item updates patch supplied metadata fields and leave omitted fields unchanged:
 
 ```sh
-pmem wi update --id <wi-id> --summary <summary>
-pmem wi update --id <wi-id> --blocked-reason <reason>
-pmem wi update --id <wi-id> --content-file <path> -l "<change message>"
+pmem wi update -I <wi-id> -S <summary>
+pmem wi update -I <wi-id> --blocked-reason <reason>
+pmem wi update -I <wi-id> --content-file <path> -l "<change message>"
 ```
 
 Supplying `--content` or `--content-file` replaces the whole WI content field. It does not append to, patch, or merge Markdown.
@@ -141,12 +142,12 @@ Prefer `--content-file` for content writes, especially when a sandbox or approva
 
 Prefer lifecycle commands over raw status updates when changing only execution state:
 
-- `pmem wi accept --id <wi-id>` sets accepted ready work.
-- `pmem wi defer --id <wi-id>` moves work to backlog.
-- `pmem wi start --id <wi-id>` marks active execution.
-- `pmem wi review --id <wi-id>` marks completed work awaiting review or validation.
-- `pmem wi block --id <wi-id> --reason <reason>` records a blocker.
-- `pmem wi complete --id <wi-id>` marks done after acceptance criteria and verification are satisfied or explicitly waived.
+- `pmem wi accept -I <wi-id>` sets accepted ready work.
+- `pmem wi defer -I <wi-id>` moves work to backlog.
+- `pmem wi start -I <wi-id>` marks active execution.
+- `pmem wi review -I <wi-id>` marks completed work awaiting review or validation.
+- `pmem wi block -I <wi-id> --reason <reason>` records a blocker.
+- `pmem wi complete -I <wi-id>` marks done after acceptance criteria and verification are satisfied or explicitly waived.
 
 Use link commands for relationships that affect retrieval, planning, execution, or validation:
 
@@ -155,7 +156,7 @@ pmem link depends-on --src-id <entity-id> --dst-id <entity-id>
 pmem link remove --src-id <entity-id> --dst-id <entity-id> --link-type <type>
 ```
 
-Other typed link add commands include `blocked-by`, `constrains`, `implements`, `references`, `supersedes`, and `validates`. Use `pmem link update` only for deliberate JSON replacement or delta workflows, and verify with `pmem link list --id <entity-id>`.
+Other typed link add commands include `blocked-by`, `constrains`, `implements`, `references`, `supersedes`, and `validates`. Use `pmem link update` only for deliberate JSON replacement or delta workflows, and verify with `pmem link list -I <entity-id>`.
 
 When changing tags, links, authority, status, parentage, priority, or blockers, verify the resulting entity state after the command. Use `--clear-tags` only when deleting all tags is intended.
 
@@ -196,7 +197,7 @@ Mirror file roles:
 - product-doc mirrors: read-only.
 - old `*.content.tmp.md` and `*.metadata.tmp.json` draft-pair files: not the current upload contract. Do not create or edit them for PMem writeback.
 
-`pmem sync upload` replays selected SQLite outbox rows for existing KB/WI updates and offline WI creates. It does not import edited projection files, create KBs, or act as a general write mechanism. Lifecycle, authority, type, subtype, anchor, parent, priority, blocked reason, links, attribution, users, actors, project membership, and audit history require explicit PMem CLI/API operations.
+`pmem sync upload` replays selected SQLite outbox rows for existing KB/WI updates and offline WI creates. It does not import edited projection files, create KBs, or act as a general write mechanism. Lifecycle, authority, type, anchor, parent, priority, blocked reason, links, attribution, users, actors, project membership, and audit history require explicit PMem CLI/API operations.
 
 `pmem sync refresh` is pull-only and does not upload local file contents. `pmem sync status` is observe-only. `pmem sync discard --id <entity-id-or-draft-id>` deletes selected pending outbox drafts or restores dirty projection-only edits from SQLite; multi-draft chains require a bounded `-n N` or global `--all --yes`.
 
@@ -208,7 +209,7 @@ Use local fallback only when PMem reads fail and a sync-home or repo-local mirro
 
 Mirror files have three roles:
 
-- `*.metadata.json`: generated structured metadata. Search here for title, summary, tags, subtype, authority, status, anchor, and timestamps.
+- `*.metadata.json`: generated structured metadata. Search here for title, summary, tags, type, authority, status, anchor, and timestamps.
 - `*.content.md`: generated body content. Read this only after metadata indicates the entity is relevant or when content search is required.
 - `*.sync.json`: local/server comparison state. Skip this for knowledge retrieval.
 
@@ -218,6 +219,6 @@ When using local fallback, say that the context came from local mirror data and 
 
 ## Entity Meaning
 
-- A KB is durable project knowledge with type, subtype, authority, status, anchor, content, and relationships.
+- A KB is durable project knowledge with type, authority, status, anchor, content, and relationships.
 - A WI is bounded execution state with scope, acceptance criteria, verification, status, dependencies, and handoff.
 - Do not use KBs as scratchpads. Use WIs for task execution state and KBs for reusable project knowledge.

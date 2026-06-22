@@ -27,19 +27,19 @@ Prefer summary-first retrieval. Full-load only the PMem records that can affect 
 
 1. Determine the task topic and scope from the user request, repo instructions, changed files, and any explicit PMem IDs.
 2. Always scan active canonical project principles at title/summary level:
-   `pmem kb list --type rfc --subtype principle --authority canonical --status active --anchor-type project --anchor-id <project-key>`
-3. For standards, policies, best practices, design contracts, and records, inspect summaries first only when their title, summary, tag, subtype, link, or scope appears related to the task topic.
+   `pmem kb list -t principle --authority canonical -s active --anchor-type project --anchor-id <project-key>`
+3. For standards, policies, best practices, design contracts, and records, inspect summaries first only when their title, summary, tag, type, link, or scope appears related to the task topic.
 4. Load full KB content only when it is canonical and constraining, directly topic-matched, explicitly referenced, linked from another loaded entity, or scoped to the path/module/work being changed:
-   `pmem kb get --id <kb-id>`
+   `pmem kb get -I <kb-id>`
 5. Do not scan work items by default. Load a WI only when the user gives a WI ID, asks to continue or pick up a PMem task, repo policy requires WI context, or the task is explicitly backlog/status/planning work:
-   `pmem wi get --id <wi-id>`
+   `pmem wi get -I <wi-id>`
 6. If no WI ID is provided, do not list active WIs unless the user asks what is active, next, blocked, or planned.
 
-When an explicit entity ID is already known and the task only needs existence or lifecycle state, prefer the lightweight checks before fuller reads: `pmem kb exists --id <kb-id>`, `pmem kb status --id <kb-id>`, `pmem wi exists --id <wi-id>`, or `pmem wi status --id <wi-id>`. Do not use status-only checks as a substitute when metadata, content, links, or update safety could affect the decision.
+When an explicit entity ID is already known and the task only needs existence or lifecycle state, prefer the lightweight checks before fuller reads: `pmem kb exists -I <kb-id>`, `pmem kb status -I <kb-id>`, `pmem wi exists -I <wi-id>`, or `pmem wi status -I <wi-id>`. Do not use status-only checks as a substitute when metadata, content, links, or update safety could affect the decision.
 
 If PMem reads fail but a sync-home mirror exists, switch to read-only local mode only for context discovery. Search metadata in `*.metadata.json`, read body text from `*.content.md`, and skip `*.sync.json`. Treat local results as possibly stale until PMem connectivity returns.
 
-If mirror search is useful and available, use it only as a discovery aid. Verify important results with `pmem kb get`, `pmem wi get`, current mirror status, or fresh connectivity before relying on them.
+If mirror search is useful and available, use it only as a discovery aid. Verify important results with `pmem kb get -I <kb-id>`, `pmem wi get -I <wi-id>`, current mirror status, or fresh connectivity before relying on them.
 
 ## Writeback
 
@@ -64,7 +64,7 @@ Before writing:
    - Link: explicit relationship that affects planning, validation, dependency, supersession, or implementation.
    - Sync draft: pending SQLite-backed upload for an existing KB/WI update or offline WI create.
 3. Read the current entity first for updates:
-   `pmem kb get --id <kb-id>` or `pmem wi get --id <wi-id>`
+   `pmem kb get -I <kb-id>` or `pmem wi get -I <wi-id>`
 4. For content updates, treat `--content-file` as full replacement, not append or merge. Load current content, produce the intended complete replacement, write it to a temporary Markdown file, and update with `--content-file` plus `-l "<change message>"`.
 5. Before using `pmem sync upload`, run `pmem sync status` and confirm the selected pending draft or draft chain is in scope and not conflicted or rejected. Inspect generated projection content only as a review aid; direct mirror file edits are not upload input. Prefer `pmem sync upload --id <entity-id-or-draft-id>` over `--all` unless every pending draft is explicitly in scope.
 6. Use live help or focused built-in docs/templates when command flags, entity semantics, or content shape are uncertain:
