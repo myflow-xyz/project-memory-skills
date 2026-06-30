@@ -33,15 +33,23 @@ test/
 
 `prun` depends on the `pmem` skill because its runbooks, tickets, and knowledge inputs are PMem document or entity IDs.
 
-## Install The PMem Skill
+## Install A Skill
 
-Use the installer script for repeatable local installation. It installs skill files only; it does not edit Codex config, Claude Code config, `CLAUDE.md`, or hook configuration.
+Use the installer script for repeatable local installation. User-scope installs symlink the skill directory by default. Project-scope installs copy the skill directory by default and ask for confirmation. The script does not edit Codex config, Claude Code config, `CLAUDE.md`, or hook configuration.
 
 Codex:
 
 ```sh
 scripts/install-skill.sh --agent codex
 ```
+
+Install `prun` instead of the default `pmem` skill:
+
+```sh
+scripts/install-skill.sh --agent codex --skill prun
+```
+
+Install both `pmem` and `prun` when using `prun`, because `prun` loads PMem-backed inputs through the PMem workflow.
 
 Claude Code user skill:
 
@@ -54,6 +62,8 @@ Claude Code project skill:
 ```sh
 scripts/install-skill.sh --agent claude --scope project
 ```
+
+Use `--yes` for non-interactive project-scope installs. Use `--mode copy` or `--mode symlink` to override the scope default.
 
 Preview the destination without writing:
 
@@ -71,32 +81,48 @@ Codex:
 
 ```sh
 codex_home=${CODEX_HOME:-"$HOME/.codex"}
-test -f "$codex_home/skills/pmem/SKILL.md"
+skill=pmem # or prun
+test -L "$codex_home/skills/$skill"
+test -f "$codex_home/skills/$skill/SKILL.md"
 ```
 
 Claude Code user skill:
 
 ```sh
-test -f "$HOME/.claude/skills/pmem/SKILL.md"
+skill=pmem # or prun
+test -L "$HOME/.claude/skills/$skill"
+test -f "$HOME/.claude/skills/$skill/SKILL.md"
 ```
 
 Claude Code project skill:
 
 ```sh
-test -f ".claude/skills/pmem/SKILL.md"
+skill=pmem # or prun
+test ! -L ".claude/skills/$skill"
+test -f ".claude/skills/$skill/SKILL.md"
 ```
 
 ### Manual Fallback
 
-Manual copy still works when you need to inspect or customize the install:
+Manual install still works when you need to inspect or customize the install. User-scope symlink:
 
 ```sh
-dest="$HOME/.codex/skills/pmem"
-mkdir -p "$dest"
-cp -R skills/pmem/. "$dest/"
+skill=pmem # or prun
+dest_dir="$HOME/.codex/skills"
+mkdir -p "$dest_dir"
+ln -s "$(pwd -P)/skills/$skill" "$dest_dir/$skill"
 ```
 
-For Claude Code, use `$HOME/.claude/skills/pmem` or `.claude/skills/pmem` as the destination.
+Project-scope copy:
+
+```sh
+skill=pmem # or prun
+dest_dir=".claude/skills/$skill"
+mkdir -p "$dest_dir"
+cp -R "skills/$skill/." "$dest_dir/"
+```
+
+For Claude Code, use `$HOME/.claude/skills/$skill` or `.claude/skills/$skill` as the destination.
 
 ## Verify PMem CLI
 
