@@ -7,6 +7,7 @@ The repo is currently focused on Codex and Claude Code. Other agent compatibilit
 ## Features
 
 - `pmem` skill: teaches an agent when and how to load PMem knowledge blocks and explicit work items as project context.
+- `prun` skill: starts an explicit agent run from PMem-backed runbooks, tickets, optional knowledge, and a message, then maintains a task-specific checklist through execution.
 - PMem-oriented conventions: concise default output, live CLI help, read-only local mirror fallback, and explicit write/update workflows instead of silent memory mutation.
 
 ## Requirements
@@ -30,7 +31,7 @@ skills/
 test/
 ```
 
-`skills/prun/SKILL.md` is currently a placeholder.
+`prun` depends on the `pmem` skill because its runbooks, tickets, and knowledge inputs are PMem document or entity IDs.
 
 ## Install The PMem Skill
 
