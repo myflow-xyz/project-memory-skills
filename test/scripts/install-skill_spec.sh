@@ -91,7 +91,7 @@ Describe "scripts/install-skill.sh"
     command mkdir -p "$SHELLSPEC_WORKDIR/confirm-project" || return
     (
       cd "$SHELLSPEC_WORKDIR/confirm-project" || return
-      HOME=$SHELLSPEC_WORKDIR/home "$script" --agent claude --scope project
+      HOME=$SHELLSPEC_WORKDIR/home "$script" --agent claude --scope project </dev/null
     )
   }
 
