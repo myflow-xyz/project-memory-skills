@@ -43,11 +43,13 @@ Role boundaries:
 
 ## Build Checklist
 
+Start ticket as in progress.
+
 Before substantive work, create a task-specific checklist from loaded inputs, repo state, user-visible context, `message`, `AGENTS.md`, and project instructions.
 
 Do not copy runbooks verbatim. Convert them into ordered, concrete, verifiable task steps. Prefer semantic work items over command-level steps.
 
-Create a lean checklist at `/tmp/agent-run/<session-id>/checklist.md`.
+Create a lean checklist at `/tmp/prun/<project-alias>/<ticket-id>/checklist.md`.
 
 The file is only a checklist. No context dump, notes, copied PMem content, findings prose, command logs, or validation details. Load source content during execution when needed.
 
