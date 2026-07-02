@@ -1,224 +1,130 @@
 # PMem CLI And Mirror Reference
 
-Use this reference when the PMem workflow needs command orientation, mirror boundaries, or local fallback rules beyond the main skill body.
+Use when the PMem workflow needs CLI orientation, writeback mechanics, mirror boundaries, or local fallback rules beyond `SKILL.md`.
 
-The current CLI can change faster than this skill. Prefer live help for exact flags and current behavior:
+Live sources beat this reference:
 
-- `pmem -h`
-- `pmem <group> -h`
-- `pmem <group> <command> -h`
-- `pmem doc list`
-- `pmem doc show <doc-id-or-slug>`
+```sh
+pmem -h
+pmem <group> [<command>] -h
+pmem doc list
+pmem doc show <doc-id-or-slug>
+```
+
+## Notation
+
+`<entity>` = `kb` or `wi`; `<entity-id>` = matching KB/WI ID. Examples use docs shorthand, not literal shell syntax.
 
 ## Built-In Docs
 
-PMem includes built-in docs that clarify product concepts, entity semantics, workflows, and templates. Use `pmem doc list` to discover current docs and `pmem doc show <doc-id-or-slug>` to load one focused doc.
+Use built-in docs for current concepts, workflows, and templates.
+Main kinds: `guide`, `term`, `workflow`, `template`.
+Useful focused docs: `doc_term_knowledge_block`, `doc_term_work_item`.
 
-Main doc kinds:
+## Reads
 
-- `guide`: product or entity overview and intended usage
-- `term`: canonical vocabulary and entity semantics
-- `workflow`: procedural guidance for PMem operations
-- `template`: content scaffolds for KBs, WIs, and related records
-
-## Common Reads
-
-Use default PMem output for agent-facing reads. Add `--json` only when deterministic parsing or a helper script needs structured output.
-
-Most common context reads:
-
-- `pmem kb list`
-- `pmem kb get -I <kb-id>`
-- `pmem kb exists -I <kb-id>`
-- `pmem kb status -I <kb-id>`
-- `pmem wi get -I <wi-id>`
-- `pmem wi exists -I <wi-id>`
-- `pmem wi status -I <wi-id>`
-- `pmem link list -I <entity-id>`
-- `pmem sync status`
-- `pmem doc show doc_workflow_repo_local_mirror_sync`
-
-Use narrower list filters when known. For filters, check command help instead of guessing flags, especially `pmem kb list -h` and `pmem wi list -h`.
-
-Use `exists` when an explicit entity ID is already known and the only question is whether it resolves in the current project context. Use `status` when the only needed field is the current KB or WI status. Use `get` instead when content, metadata beyond status, links, history, or writeback safety could affect the next action.
-
-For structured entity reads, use `--fields` when supported to keep JSON small:
-
-- `pmem kb get -I <kb-id> --json --fields status,title,summary`
-- `pmem wi get -I <wi-id> --json --fields status,title,summary`
-
-For content replacement workflows, read the current Markdown first:
-
-- `pmem kb get -I <kb-id> --content-only`
-- `pmem wi get -I <wi-id> --content-only`
-
-Historical versions are read-only and useful for audit or recovery context:
-
-- `pmem kb history -I <kb-id>`
-- `pmem wi history -I <wi-id>`
-
-## Common Writebacks
-
-Writebacks are explicit workflows. Do not run them as part of routine context loading.
-
-Durable content should be correct, accurate, and dense. Before writing with
-`--content-file`, check whether the target entity, document type, template, or
-surface has a size limit; keep required context, constraints, evidence, and
-verification ahead of narrative padding.
-
-Normalize runtime user-identifying local data before it enters KB, WI, sync
-draft, ticket, or review-note content. Replace usernames, home directories,
-device names, cloud-sync paths, absolute machine-local repo paths, temporary
-paths, and runtime-only local IDs with stable placeholders such as
-`<user-home>`, `<repo-root>`, `<agent-home>`, `<sync-home>`, `<tmp-dir>`,
-`<project-key>`, and `<entity-id>`. Do not store secrets, tokens, raw
-identifying logs, or facts that belong only in source files.
-
-Use live help before uncommon mutations:
-
-- `pmem kb create -h`
-- `pmem kb update -h`
-- `pmem wi create -h`
-- `pmem wi update -h`
-- `pmem sync upload -h`
-- `pmem sync discard -h`
-- `pmem link <type> -h`
-- `pmem link update -h`
-
-Examples in this reference use shortcut flags when available. Use long flags when no shortcut exists. For content change messages, `--changelog` is the long alias for `-l`.
-
-Knowledge block creation:
+Use default output for agent reads. Add `--json` only for deterministic parsing; add `--fields` when supported.
 
 ```sh
-pmem kb create \
-  -t <principle|standard|constraint|adr|design_contract|plan|spec|record> \
+pmem <entity> list
+pmem <entity> [get|exists|status|history] -I <entity-id>
+pmem <entity> get -I <entity-id> --content-only
+pmem <entity> get -I <entity-id> --json --fields status,title,summary
+pmem link list -I <entity-id>
+```
+
+Check list filters with `pmem <entity> list -h`; do not guess flags.
+Use `exists` for known-ID resolution, `status` for lifecycle only, and `get` when content, metadata, links, history, or writeback safety can affect the decision.
+
+## Writebacks
+
+Mutations are explicit workflows, not context loading. Read the current entity before updates; verify changed state after create, update, upload, discard, lifecycle, and link mutations.
+
+Flags: use `--cwd` outside the target repo, `--verbose` only for explicit debugging, `--quiet` only when warnings are intentionally unwanted, and `--yes` only after confirmed authority-changing intent.
+
+```sh
+pmem <entity> [create|update] -h
+pmem sync [upload|discard] -h
+pmem link <type> -h
+pmem link update -h
+```
+
+Content rules: use `--content-file` for non-trivial content; inline `--content` only for short ad hoc text. `--content` and `--content-file` replace the whole content field, never append or merge. Include `-l "<changelog>"` for content-bearing creates and updates; treat it as required for content updates.
+
+Durable content should be correct, accurate, dense, and within any entity, document-type, template, or target-surface size limit. Normalize local identifying data to stable placeholders such as `$REPO/`, `/tmp/`. Never store secrets, tokens, raw identifying logs, or facts that belong only in source files.
+
+Create examples:
+
+```sh
+pmem kb create -t <principle|standard|constraint|adr|design_contract|plan|spec|record> \
   --authority <canonical|supporting|historical> \
-  -s <status> \
   --anchor-type <project|work_item|module|path|external> \
   --anchor-id <anchor-id> \
   -T <title> \
   -S <summary> \
+  -s <status> \
   --content-file <path> \
-  -l "<change message>"
+  -l "<changelog>"
 ```
-
-KB `type` is the semantic document shape. The current KB CLI does not have a `subtype` field.
-
-Knowledge block updates patch supplied metadata fields and leave omitted fields unchanged:
-
-```sh
-pmem kb update -I <kb-id> -S <summary>
-pmem kb update -I <kb-id> --content-file <path> -l "<change message>"
-```
-
-Supplying `--content` or `--content-file` replaces the whole KB content field. It does not append to, patch, or merge Markdown.
-
-Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern. Include `-l "<change message>"` for content-bearing creates and updates; for content updates, treat the change message as required audit context.
-
-Work item creation:
 
 ```sh
 pmem wi create \
   -t <task|bug|spike|test|review|doc|story|milestone|epic> \
-  -s <status> \
   --priority <priority> \
   -T <title> \
   -S <summary> \
+  -s <status> \
   --content-file <path> \
-  -l "<change message>"
+  -l "<changelog>"
 ```
 
-Work item updates patch supplied metadata fields and leave omitted fields unchanged:
+Update examples:
 
 ```sh
-pmem wi update -I <wi-id> -S <summary>
+pmem <entity> update -I <entity-id> -S <summary>
+pmem <entity> update -I <entity-id> --content-file <path> -l "<changelog>"
 pmem wi update -I <wi-id> --blocked-reason <reason>
-pmem wi update -I <wi-id> --content-file <path> -l "<change message>"
 ```
 
-Supplying `--content` or `--content-file` replaces the whole WI content field. It does not append to, patch, or merge Markdown.
+Prefer WI lifecycle commands over raw status updates when only execution state changes:
+- `pmem wi <lifecycle-command> -I <wi-id> [--reason <reason>]`
+    - `defer` -> `backlog`
+    - `accept` -> `todo`
+    - `start` -> `in_progress`
+    - `review` -> `review`
+    - `block --reason <reason>` -> `blocked`
+    - `complete` -> `done`
 
-Prefer `--content-file` for content writes, especially when a sandbox or approval hook may inspect the command string. Reserve inline `--content` for short ad hoc content where a large command payload is not a concern. Include `-l "<change message>"` for content-bearing creates and updates; for content updates, treat the change message as required audit context.
-
-Prefer lifecycle commands over raw status updates when changing only execution state:
-
-- `pmem wi accept -I <wi-id>` sets accepted ready work.
-- `pmem wi defer -I <wi-id>` moves work to backlog.
-- `pmem wi start -I <wi-id>` marks active execution.
-- `pmem wi review -I <wi-id>` marks completed work awaiting review or validation.
-- `pmem wi block -I <wi-id> --reason <reason>` records a blocker.
-- `pmem wi complete -I <wi-id>` marks done after acceptance criteria and verification are satisfied or explicitly waived.
-
-Use link commands for relationships that affect retrieval, planning, execution, or validation:
+Links:
 
 ```sh
-pmem link depends-on --src-id <entity-id> --dst-id <entity-id>
+pmem link <blocked-by|constrains|depends-on|implements|references|supersedes|validates> --src-id <entity-id> --dst-id <entity-id>
 pmem link remove --src-id <entity-id> --dst-id <entity-id> --link-type <type>
 ```
 
-Other typed link add commands include `blocked-by`, `constrains`, `implements`, `references`, `supersedes`, and `validates`. Use `pmem link update` only for deliberate JSON replacement or delta workflows, and verify with `pmem link list -I <entity-id>`.
+Use `pmem link update` only for deliberate JSON replacement or delta workflows. Verify links with `pmem link list -I <entity-id>`.
 
-When changing tags, links, authority, status, parentage, priority, or blockers, verify the resulting entity state after the command. Use `--clear-tags` only when deleting all tags is intended.
-
-Sync upload is also a writeback path, but only for pending SQLite-backed drafts created by explicit PMem CLI/API input, such as existing KB/WI updates or offline WI creates:
+Sync upload is a writeback path only for pending SQLite outbox drafts from explicit PMem CLI/API input, such as existing KB/WI updates or offline WI creates. It does not import edited projection files, create KBs, or replace lifecycle, link, authority, type, anchor, parent, priority, blocker, attribution, user, actor, project-membership, or audit-history operations.
 
 ```sh
 pmem sync status
-pmem sync upload --id <entity-id-or-draft-id>
-pmem sync upload --all
-pmem sync upload --id <entity-id-or-draft-id> --force
-pmem sync discard --id <entity-id-or-draft-id>
-pmem sync discard --id <entity-id-or-draft-id> -n 1
+pmem sync upload --id <entity-id>
+pmem sync discard --id <entity-id> [-n <count>]
 ```
 
-Use sync upload only after `pmem sync status` shows the selected pending draft or draft chain is in scope and not conflicted or rejected. Review generated projection content when useful, but do not edit generated mirror files as upload input. Prefer `pmem sync upload --id <entity-id-or-draft-id>` for agent-driven work. Use `--all` only when every pending SQLite draft is intentionally in scope, including drafts that may be auto-uploaded by hooks. Use `--force` only after manually reconciling a conflicted draft. Use `pmem sync discard --id <entity-id-or-draft-id>` when a pending draft should be removed instead of uploaded.
+Use `sync status` first; upload only selected drafts that are in scope and not conflicted or rejected.
+Use `--force` only after manually reconciling a conflicted draft.
+Use `discard --id` when a pending draft should be removed instead of uploaded.
 
-## Command Principles
+## Mirror And Fallback
 
-- Use noun-first commands: `pmem <resource> <operation>`.
-- Use `--cwd` when invoking PMem from outside the target project repo.
-- Use `--verbose` only for explicit debugging.
-- Use `--quiet` only when warnings are intentionally unwanted.
-- Prefer `--content-file` over inline Markdown for non-trivial writeback.
-- Include `-l "<change message>"` with content-bearing creates and updates; require it for content updates.
-- Treat create, update, upload, discard, lifecycle, and link mutation commands as explicit writeback workflows, not default context-loading behavior.
-- Use `--yes` only when an authority-changing operation is intentional and already confirmed by user intent or workflow requirements.
+Server database is the source of truth. Local SQLite owns the mirror cache, projection health, and pending outbox. Projection files are for search, reading, and review; direct edits are drift, not durable PMem input.
 
-## Mirror And Sync
+File roles:
 
-The server database is the source of truth for accepted PMem entities. Local SQLite owns the mirror cache, projection health, and pending outbox drafts. Mirror files are generated local projections for search, reading, and review; direct file edits are projection drift, not durable PMem input.
+- `<id>.metadata.json`: generated metadata; search title, summary, tags, type, authority, status, anchor, and timestamps.
+- `<id>.content.md`: generated body content; read after metadata is relevant or content search is required.
 
-Use `pmem sync status` before relying on mirror freshness or uploading drafts. Use `pmem sync refresh` only when the workflow intentionally refreshes the mirror.
+`pmem sync refresh` is pull-only. `pmem sync status` is observe-only. `pmem sync upload` replays selected SQLite outbox rows; it does not upload projection edits.
 
-Mirror file roles:
-
-- `<id>.content.md` and `<id>.metadata.json`: generated projections from SQLite/server state. Read/search/review them; do not edit them as the source of truth.
-- `<id>.sync.json`: local/server comparison state when present. Use sync commands instead of editing it.
-- product-doc mirrors: read-only.
-- old `*.content.tmp.md` and `*.metadata.tmp.json` draft-pair files: not the current upload contract. Do not create or edit them for PMem writeback.
-
-`pmem sync upload` replays selected SQLite outbox rows for existing KB/WI updates and offline WI creates. It does not import edited projection files, create KBs, or act as a general write mechanism. Lifecycle, authority, type, anchor, parent, priority, blocked reason, links, attribution, users, actors, project membership, and audit history require explicit PMem CLI/API operations.
-
-`pmem sync refresh` is pull-only and does not upload local file contents. `pmem sync status` is observe-only. `pmem sync discard --id <entity-id-or-draft-id>` deletes selected pending outbox drafts or restores dirty projection-only edits from SQLite; multi-draft chains require a bounded `-n N` or global `--all --yes`.
-
-Pre-push auto-upload hooks may run `pmem sync upload --all`. Check `pmem sync status` before pushing when pending SQLite drafts exist, because those drafts can become durable PMem updates through that hook path.
-
-## Local Read-Only Fallback
-
-Use local fallback only when PMem reads fail and a sync-home or repo-local mirror exists. Local fallback is read-only and potentially stale.
-
-Mirror files have three roles:
-
-- `*.metadata.json`: generated structured metadata. Search here for title, summary, tags, type, authority, status, anchor, and timestamps.
-- `*.content.md`: generated body content. Read this only after metadata indicates the entity is relevant or when content search is required.
-- `*.sync.json`: local/server comparison state. Skip this for knowledge retrieval.
-
-Prefer structured shell processing over ad hoc text matching for metadata. Use `jq` when available, or a small script that parses JSON. If an optional helper such as `rg` or `jq` is missing, skip only the dependent local-search path and use PMem CLI reads when available.
-
-When using local fallback, say that the context came from local mirror data and freshness could not be verified without PMem connectivity.
-
-## Entity Meaning
-
-- A KB is durable project knowledge with type, authority, status, anchor, content, and relationships.
-- A WI is bounded execution state with scope, acceptance criteria, verification, status, dependencies, and handoff.
-- Do not use KBs as scratchpads. Use WIs for task execution state and KBs for reusable project knowledge.
+Use local fallback only when PMem reads fail and a mirror exists. Treat fallback as read-only and possibly stale, prefer structured JSON parsing (`jq` when available), and report that freshness was not verified.
