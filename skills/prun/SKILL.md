@@ -43,7 +43,7 @@ Role boundaries:
 
 ## Build Checklist
 
-Start ticket as in progress.
+Explicit `prun` invocation authorizes ensuring each supplied ticket is `in_progress` as the run's initial PMem status transition. Perform any needed transition through the `pmem` skill and verify status before substantive work. If status cannot be verified, stop and report the failed transition or status check.
 
 Before substantive work, create a task-specific checklist from loaded inputs, repo state, user-visible context, `message`, `AGENTS.md`, and project instructions.
 
@@ -52,6 +52,8 @@ Do not copy runbooks verbatim. Convert them into ordered, concrete, verifiable t
 Create a lean checklist at `/tmp/prun/<project-alias>/<ticket-id>/checklist.md`.
 
 The file is only a checklist. No context dump, notes, copied PMem content, findings prose, command logs, or validation details. Load source content during execution when needed.
+
+Runbook-required records such as root cause, evidence, decisions, verification, and follow-ups do not belong in the checklist file. Use the final response as the default sink. Use a PMem WI checkpoint only when the loaded workflow requires one or the user requests or confirms writeback.
 
 Checklist item format only:
 
