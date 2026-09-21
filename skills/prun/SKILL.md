@@ -103,7 +103,7 @@ Mutation rules:
 
 PMem remains durable truth. `prun` state is working state unless explicitly written back through PMem.
 
-Write to PMem only when the user asks, a loaded WI workflow requires a bounded checkpoint/status update, or durable project knowledge changed and writeback is requested or confirmed. For every mutation, follow the `pmem` skill. Never edit generated PMem mirrors or write run ledgers under `.pmem/` without an accepted PMem storage contract and explicit request.
+Write to PMem only when the user asks, the user-input stop condition below requires a ticket follow-up, a loaded WI workflow requires a bounded checkpoint/status update, or durable project knowledge changed and writeback is requested or confirmed. For every mutation, follow the `pmem` skill. Never edit generated PMem mirrors or write run ledgers under `.pmem/` without an accepted PMem storage contract and explicit request.
 
 ## Final Reconciliation
 
@@ -121,6 +121,12 @@ Do not claim completion if required items or test-ticket obligations remain unre
 ## Stop Conditions
 
 Stop before execution when `prun` was not explicit, `tickets` or `runbooks` are missing/unusable, a supplied ID cannot be loaded or has the wrong entity type, PMem/source truth conflicts with higher-priority instructions, the request needs out-of-scope lifecycle behavior, or side effects are unclear or unauthorized.
+
+If execution requires user input, stop substantive work. Explicit `prun` invocation authorizes this handoff:
+
+1. Commit as much meaningful, already implemented work as possible in logical, atomic commits scoped to the run, following repository conventions. Run required checks, push to the run's remote feature branch, and verify the intended commits on the remote. Do not force-push or extend implementation. Preserve local work if committing or pushing is blocked.
+2. Through the `pmem` skill, add or update the affected ticket's `Follow-up` section with the scenario, question, recommendation, and rationale for both the recommendation and need for user input. Include the remote feature branch, verified pushed commit IDs, validation status, and any unpushed work with reasons. Verify the writeback.
+3. End the run; resume only after the user resolves the follow-up. If writeback fails, still stop and report the failure and follow-up content in the final response.
 
 ## Output
 
