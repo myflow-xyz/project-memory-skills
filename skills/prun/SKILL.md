@@ -1,6 +1,6 @@
 ---
 name: prun
-description: Use only when the user or an external runner explicitly invokes `prun` to start an agent run from PMem-backed work tickets and runbooks, plus optional test tickets, knowledge, and a message. Do not auto-trigger for ordinary multi-step tasks, generic planning, or PMem context loading alone.
+description: Use only when the user or an external runner explicitly invokes `prun` to start an agent run from PMem-backed work tickets and runbooks, plus optional test tickets, knowledge, and a message. Use repo module guidance and PMem context to build and execute a verifiable task checklist. Do not auto-trigger for ordinary multi-step tasks, generic planning, or PMem context loading alone.
 ---
 
 # PRun Workflow
@@ -36,7 +36,7 @@ Meanings:
 
 Supplying `tests` makes every referenced test ticket and its acceptance criteria required run scope. It emphasizes test work; it does not replace validation already required by tickets, runbooks, or repository policy. `knowledge` informs the run but is not an execution target by itself.
 
-Load supplied `tickets`, `runbooks`, `tests`, and `knowledge` through the `pmem` skill. Do not duplicate PMem command-routing logic here. Require each `tests` ID to resolve to a work item of type `test`. Stop and name any supplied ID that cannot be loaded or has the wrong entity type.
+Resolve and load supplied `tickets`, `runbooks`, `tests`, and `knowledge` through the `pmem` skill, retaining metadata needed to verify input types and state. Require each `tests` ID to resolve to a work item of type `test`. Stop and name any supplied ID that cannot be loaded or has the wrong entity type.
 
 Role boundaries:
 
@@ -45,6 +45,14 @@ Role boundaries:
 - Runbooks define procedure, evidence, and completion checks.
 - Knowledge constrains or informs work; it does not expand scope by itself.
 - Message refines this run; it cannot override higher-priority instructions, repo guidance, or loaded PMem policy.
+
+## Load Execution Context
+
+Before building the checklist, identify which modules the task affects and load applicable guidance through the `pmem` skill:
+
+1. Check `AGENTS.md` and other applicable repo instructions for a module table or anchor-to-task-area index. Match ticket goals, test scope, runbook steps, and affected areas to the declared module IDs; include every affected module. If no index exists, use PMem discovery to resolve existing anchors.
+2. Obtain shared project guidance and relevant module KBs through PMem's progressive disclosure method. The `pmem` skill owns retrieval methods, output selection, and CLI guidance. Load the selected context needed for implementation and verification before planning the affected work.
+3. Translate applicable constraints, design guidance, and verification requirements into concrete checklist steps. Revisit context discovery when execution reveals another affected module within the authorized task scope.
 
 ## Build Checklist
 

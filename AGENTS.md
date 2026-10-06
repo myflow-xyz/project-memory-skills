@@ -35,6 +35,18 @@ Bias decisions in this order:
 - Side-effecting skills require explicit safety guidance and must not perform durable writes silently.
 - Provide skill install scripts when implementation moves beyond manual install steps; keep their side effects explicit and local.
 
+### Responsibility Boundaries
+
+| Document | Responsibility |
+| --- | --- |
+| [pmem skill](skills/pmem/SKILL.md) | General PMem concepts and methods: scope selection, progressive disclosure, authority and freshness, output selection, and safe writeback. |
+| [prun skill](skills/prun/SKILL.md) | Execution guidance: identify relevant modules from repo instructions, obtain context through `pmem`, build and maintain a verifiable checklist, and reconcile implementation, validation, and handoff. |
+| [PMem CLI reference](skills/pmem/references/cli.md) | Concrete commands, practical examples, and lookup tables for built-in docs, anchors, KB/WI creation and reads/updates, lifecycle commands, links, and cached files. |
+
+- Keep each procedure in its owning document and refer to it from other layers. Delegate PMem retrieval and writeback mechanics from `prun` to `pmem`.
+- Preserve frequently used examples and lookup tables in the CLI reference. Use live help and built-in docs for uncommon options, full schemas, and current supported values.
+- Add guidance when actual usage reveals a gap; avoid duplicating instructions across these documents.
+
 ## Git Hook Guidance
 
 - Use Git's `core.hooksPath` config for repo hooks.
